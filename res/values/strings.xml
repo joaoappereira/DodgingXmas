@@ -3,7 +3,7 @@
 
     <string name="app_name">Dodging Xmas</string>
     <string name="dialog_game_end">Heeeeeeere\'s Xmas!</string>
-    <string name="button_play_again">Play again?</string>
+    <string name="button_play_again">Play again</string>
     <string name="button_exit">Exit</string>
 
 </resources>

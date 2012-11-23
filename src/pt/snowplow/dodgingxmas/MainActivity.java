@@ -1,13 +1,11 @@
 package pt.snowplow.dodgingxmas;
 
-import android.R;
 import android.app.Activity;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.util.Log;
 
 public class MainActivity extends Activity implements SensorEventListener {
 
@@ -54,7 +52,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 			SensorManager.getOrientation(R, tiltData);
 		}
 
-		mainView.setBallXvelocity((int) (Math.round(tiltData[2])*10));
+		mainView.setBallXvelocity((int) (tiltData[2]*10));
 	}
 
 	@Override
