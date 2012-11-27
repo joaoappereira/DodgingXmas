@@ -1,52 +1,94 @@
 package pt.snowplow.dodgingxmas;
 
-import java.util.LinkedList;
-import java.util.List;
-
-import android.app.AlertDialog;
+import pt.snowplow.dodgingxmas.gameobjects.DodgerObject;
+import pt.snowplow.dodgingxmas.managers.ObstacleManager;
+import pt.snowplow.framework.GameObject;
+import pt.snowplow.framework.GameObjectPool;
+import pt.snowplow.framework.VisualComponent;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
-import android.os.Handler;
 import android.util.AttributeSet;
+import android.util.Pair;
 import android.widget.ImageView;
 
 public class MainView extends ImageView {
 	
-	private Handler handler;
-	private final int FRAME_RATE = 30;
 	private final Context context;
-
-	// BALL
-	private int ballX;
-	private int ballY;
-	private int ballXvelocity = 0;
-	private boolean firstBallRun = true;
-	private int rightEdge;
-	private static final int leftEdge = 0;
-	private final Bitmap ball;
-
-	// BOXES
-	private List<Box> boxes;
-	private static final int BOX_MAX = 3;
+	
+	//Game Objects
+	private GameThread gameThread;
+	private boolean init;
+	
+	//Score text
+	private final Paint scoreTextPaint;
 
 	public MainView(Context context, AttributeSet attrs)  {
 		super(context, attrs);
-		handler = new Handler();
 		this.context = context;
-		ball = ((BitmapDrawable) context.getResources().getDrawable(R.drawable.ball)).getBitmap();
-		boxes = new LinkedList<Box>();
+		scoreTextPaint = new Paint();
+		scoreTextPaint.setAntiAlias(true);
+		scoreTextPaint.setTextSize(30);
+		scoreTextPaint.setColor(Color.WHITE);
+		scoreTextPaint.setTextAlign(Paint.Align.LEFT);
+	}
+	
+	public void setGameThread(GameThread gameThread) {
+		this.gameThread = gameThread;
+	}
+	
+	@Override
+	protected void onDraw(Canvas canvas) {
+		if(this.gameThread != null) {
+			if(!this.init) {
+				this.init();
+			} else {
+				GameObjectPool gameObjectPool = this.gameThread.getGameObjectPool();
+				if(gameObjectPool != null) {
+					for(GameObject go : gameObjectPool.getObjects()){
+						VisualComponent vc = (VisualComponent) go.getComponent(VisualComponent.class);
+						Pair<Float,Float> pos = vc.getPosition();
+						Bitmap b = (Bitmap) vc.getSprite();
+						canvas.drawBitmap(b, pos.first, pos.second, null);
+					}
+				}
+				ObstacleManager om = gameThread.getObstacleManager();
+				if(om != null) {
+					canvas.drawText("Objects dodged: " + om.getDodgedObstacles() , 20, 30, scoreTextPaint);
+				}
+			}
+		}
+		
+		super.onDraw(canvas);
+	}
+	
+	public void init() {
+		if(gameThread != null) {
+			ObstacleManager obstacleManager = gameThread.getObstacleManager();
+			Bitmap box = ((BitmapDrawable) this.context.getResources().getDrawable(R.drawable.box)).getBitmap();
+			obstacleManager.init(box, box.getWidth(), getWidth(), getHeight());
+			Bitmap ball = ((BitmapDrawable) context.getResources().getDrawable(R.drawable.ball)).getBitmap();
+			DodgerObject dodgerObject = gameThread.getDodgerObject();
+			if(dodgerObject != null) {
+				dodgerObject.init(ball,getWidth(),getHeight(),ball.getHeight(), ball.getWidth());
+			}
+			Runnable invalidator = new Runnable() {
+				public void run() {
+					invalidate();
+				}
+			};
+			this.gameThread.setInvalidator(invalidator);
+			this.gameThread.setRunning(true);
+			this.gameThread.start();
+			this.init = true;
+		}
 	}
 
-	private Runnable r = new Runnable() {
-		@Override
-		public void run() {
-			invalidate();
-		}
-	};
-
+	
+/*
 	public void setBallXvelocity(int ballXvelocity) {
 		this.ballXvelocity = ballXvelocity;
 	}
@@ -55,8 +97,8 @@ public class MainView extends ImageView {
 		return (objX <= x && (objX + obj.getWidth()) >= x)
 				|| (objY >= y && (objY - obj.getHeight()) <= y) ? true : false;
 	}
-
-	private boolean isBallBoxCollision() {
+*/
+	/*private boolean isBallBoxCollision() {
 		for(Box b : boxes) {
 			int left = Math.max(b.getX(), ballX);
 			int right = Math.min(b.getX() + b.getBitmap().getWidth(), ballX + ball.getWidth());
@@ -72,35 +114,10 @@ public class MainView extends ImageView {
 			}
 		}
 		return false;
-	}
+	}*/
 
-	private void drawBox(Canvas c, Box b) {
-		// inside screen condition
-		if (b.getY() <= getHeight()) {
-			b.setY(b.getY() + b.getYvelocity());
-		}
 
-		// off screen condition
-		if (b.getY() > getHeight()) {
-			b.reset();
-		} else {
-			c.drawBitmap(b.getBitmap(), b.getX(), b.getY(), null);
-		}
-	}
-
-	private void drawBoxes(Canvas c) {
-		if(boxes.isEmpty()) {
-			for(int i = 0; i < BOX_MAX; i++) {
-				boxes.add(new Box(context, getWidth()));
-			}
-		}
-
-		for(Box b : boxes) {
-			drawBox(c, b);
-		}
-	}
-
-	private void drawBall(Canvas c) {
+	/*private void drawBall(Canvas c) {
 		if(firstBallRun) {
 			ballX = getWidth()/2 - ball.getWidth()/2;
 			ballY = getHeight() - ball.getHeight();
@@ -122,9 +139,9 @@ public class MainView extends ImageView {
 		}
 
 		c.drawBitmap(ball, ballX, ballY, null);
-	}
+	}*/
 	
-	private void resetGame() {
+	/*private void resetGame() {
 		boxes.clear();
 		firstBallRun = true;
 		handler.post(r);
@@ -150,18 +167,8 @@ public class MainView extends ImageView {
 		
 		AlertDialog alertDialog = alertDialogBuilder.create();
 		alertDialog.show();
-	}
+	}*/
 
-	protected void onDraw(Canvas c) {
-		if(isBallBoxCollision() && !firstBallRun && !boxes.isEmpty()) {
-			drawBall(c);
-			drawBoxes(c);
-			gameEnd();
-		} else {
-			drawBall(c);
-			drawBoxes(c);
-			handler.postDelayed(r, FRAME_RATE);
-		}
-	}
+	
 
 }
