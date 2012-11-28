@@ -1,28 +1,21 @@
 package pt.snowplow.dodgingxmas.gameobjects;
 
-import pt.snowplow.framework.GameObject;
-import pt.snowplow.framework.PhysicsComponent;
-import pt.snowplow.framework.VisualComponent;
+import android.graphics.Bitmap;
 
 public class XmasGiftObject extends GameObject {
-	
-	public XmasGiftObject() {
-		VisualComponent vc = new VisualComponent();
-		addComponent(VisualComponent.class,vc);
-		PhysicsComponent pc = new PhysicsComponent();
-		addComponent(PhysicsComponent.class, pc);
+
+	public XmasGiftObject( Bitmap sprite ) {
+		addComponent(VisualComponent.class, new VisualComponent( sprite ) );
+		addComponent(PhysicsComponent.class, new PhysicsComponent());
 	}
 
-	public void init(Object sprite) {
-		VisualComponent vc = (VisualComponent) getComponent(VisualComponent.class);
-		vc.init(sprite);
-	}
-	
 	@Override
-	public void update() {
-		super.update();
+	public void update( int canvasWidth, int canvasHeight ) {
+		super.update( canvasWidth, canvasHeight );
+
 		PhysicsComponent pc = (PhysicsComponent) getComponent(PhysicsComponent.class);
 		VisualComponent vc = (VisualComponent) this.getComponent(VisualComponent.class);
-		vc.setPosition(pc.getPosition());
+		vc.setPosition( pc.getPosition() );
 	}
+
 }

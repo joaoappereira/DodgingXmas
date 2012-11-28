@@ -21,9 +21,13 @@ public class TiltSensor implements SensorEventListener {
 		this.sensorMagneticField = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 		enable();
 	}
-	
-	public void onAccuracyChanged(Sensor sensor, int accuracy) { }
 
+	@Override
+	public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+	}
+
+	@Override
 	public void onSensorChanged(SensorEvent event) {
 		if(event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
 			System.arraycopy(event.values, 0, gravityData, 0, 3);

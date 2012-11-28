@@ -1,49 +1,34 @@
 package pt.snowplow.dodgingxmas.gameobjects;
 
+import android.graphics.Bitmap;
 import android.util.Pair;
-import pt.snowplow.framework.GameObject;
-import pt.snowplow.framework.PhysicsComponent;
-import pt.snowplow.framework.TiltComponent;
-import pt.snowplow.framework.VisualComponent;
 
 public class DodgerObject extends GameObject {
 
-	public int screenWidth;
-	public int dodgerWidth;
-	
-	public DodgerObject() {
-		VisualComponent vc = new VisualComponent();
-		addComponent(VisualComponent.class, vc);
-		
-		PhysicsComponent pc = new PhysicsComponent();
-		addComponent(PhysicsComponent.class, pc);
-		
-		TiltComponent tc = new TiltComponent();
-		addComponent(TiltComponent.class, tc);
-	}
-	
-	public void init(Object sprite, int screenWidth, int screenHeight, int spriteHeight, int spriteWidth) {
-		this.screenWidth = screenWidth;
-		this.dodgerWidth = spriteWidth;
-		VisualComponent vc = (VisualComponent) getComponent(VisualComponent.class);
-		vc.init(sprite);
-		float ballX = screenWidth/2;
-		float ballY = screenHeight - spriteHeight;
-		Pair<Float,Float> ballPos = new Pair<Float,Float>(ballX,ballY);
-		PhysicsComponent pc = (PhysicsComponent) getComponent(PhysicsComponent.class);
-		pc.setPosition(ballPos);
+	private int width;
+
+	private int height;
+
+	public DodgerObject( Bitmap sprite, int width, int height ) {
+		this.width = width;
+		this.height = height;
+
+		addComponent(VisualComponent.class, new VisualComponent( sprite ) );
+		addComponent(PhysicsComponent.class, new PhysicsComponent() );
+		addComponent(TiltComponent.class, new TiltComponent() );
 	}
 	
 	@Override
-	public void update() {
-		super.update();
+	public void update( int canvasWidth, int canvasHeight ) {
+		super.update( canvasWidth, canvasHeight );
+
 		TiltComponent tc = (TiltComponent) getComponent(TiltComponent.class);
 		PhysicsComponent pc = (PhysicsComponent) getComponent(PhysicsComponent.class);
 		float[] tilt = tc.getTilt();
 		Pair<Float,Float> curPos = pc.getPosition();
 		
-		float newX = curPos.first + tilt[2];
-		if( (newX > screenWidth - dodgerWidth) || (newX < 0) ) {
+		float newX = curPos.first + tilt[2] * 20;
+		if( (newX > canvasWidth - width) || (newX < 0) ) {
 			newX = curPos.first;
 		}
 		

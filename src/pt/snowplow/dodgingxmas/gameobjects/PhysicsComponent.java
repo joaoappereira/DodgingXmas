@@ -1,10 +1,10 @@
-package pt.snowplow.framework;
+package pt.snowplow.dodgingxmas.gameobjects;
 
 import android.util.Pair;
 
-public class PhysicsComponent extends GameObjectComponent {
+public class PhysicsComponent implements GameObjectComponent {
 
-	private static final float PHYSICS_STEP = 0.01f;
+	private static final float PHYSICS_STEP = 1.0f;
 	
 	private Pair<Float,Float> position;
 	private Pair<Float,Float> velocity;

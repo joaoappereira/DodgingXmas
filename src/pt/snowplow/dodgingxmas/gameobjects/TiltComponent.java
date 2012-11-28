@@ -1,8 +1,8 @@
-package pt.snowplow.framework;
+package pt.snowplow.dodgingxmas.gameobjects;
 
 import pt.snowplow.dodgingxmas.MainActivity;
 
-public class TiltComponent extends GameObjectComponent {
+public class TiltComponent implements GameObjectComponent {
 
 	private float[] tilt;
 	
